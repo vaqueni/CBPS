@@ -1,186 +1,7 @@
-import datetime
-import hashlib as hasher
-import numpy
-import random
-
-# 난이도
-bits = 1
-
-
-# 블록 클래스
-class Block:
-    def __init__(self, index, name, time, bits, data, previous_hash):
-        self.index = index
-        self.name = name
-        self.time = time
-        self.bits = bits
-        self.data = data
-        self.previous_hash = previous_hash
-        self.hash = ""
-        self.nonce = 0
-
-    def get_block_hash(self):
-        sha = hasher.sha256()
-        sha.update((str(self.index) + self.name + str(self.time) + str(self.bits) + str(self.data) + str(
-            self.previous_hash) + str(
-            self.nonce)).encode("utf-8"))
-        return sha.hexdigest()
-
-    def mine(self):
-        nonce = 0
-        while not self.valid_nonce(nonce):
-            nonce += 1
-        print("새 블록 생성 됨: {}".format(self.hash))
-
-    def valid_nonce(self, nonce):
-        self.nonce = nonce
-        self.hash = self.get_block_hash()
-        i = 1
-        for c in self.hash:
-            if (c is not "0"):
-                return False
-
-            if (i is self.bits):
-                return True
-            i += 1
-
-
-# Genesis 블록 생성 함수 (첫 블록)
-def create_genesis_block():
-    # 첫 블록은 별다른 데이터를 가지지 않는다.
-    return Block(0, '', datetime.datetime.now(), bits, "Genesis Block", "0")
-
-
-# 새 블록 생성
-def next_block(prev_block, name, data):
-    index = prev_block.index + 1
-    name = name
-    time = datetime.datetime.now()
-    previous_hash = prev_block.hash
-    block = Block(index, name, time, bits, data, previous_hash)
-    block.mine()
-    return block
-
-
-# 블록을 저장할 체인
-block_chain = [create_genesis_block()]
-my_block_chain = [create_genesis_block()]
-
-# ==================================================================================================================== #
-# 게임 실행 전 세팅
-
-
-for i in range(0, 1601):
-    k = random.uniform(0, 100)  # 박스
-    n = random.uniform(0, 1601)  # 사람
-    user_name = ''
-    result = ''
-    if 0 < n < 10:  # 승환
-        user_name = '승환'
-    elif 10 <= n < 110:  # 성산
-        user_name = '성산'
-    elif 110 <= n < 610:  # 주호
-        user_name = '주호'
-    else:  # 송아
-        user_name = '송아'
-
-    if k < 80:  # 80퍼센트 확률로 꽝이다.
-        result = '꽝'
-    elif 80 <= k < 95:  # 15 퍼센트 확률
-        result = "쿠폰"
-    else:  # 5퍼센트 확률
-        result = "자동차"
-    block_chain.append(next_block(block_chain[len(block_chain) - 1], user_name, result))
-
-'''
-
-def box_loop(n, player_name):
-    k = random.uniform(0, 100)
-
-    for i in range(0, n):
-        if k < 80:  # 80퍼센트 확률로 꽝이다.
-            result = '꽝'
-
-        elif 80 <= k < 95:  # 15 퍼센트 확률
-            result = "쿠폰"
-
-        elif 95 <= k <= 100:  # 5퍼센트 확률
-            result = "자동차"
-
-        block_chain.append(next_block(block_chain[len(block_chain) - 1], player_name, result))
-
-
-player1 = '성산'
-player2 = '승환'
-player3 = '주호'
-player4 = '송아'
-
-box_loop(50, '성산')
-box_loop(100, '승환')
-box_loop(500, '주호')
-box_loop(1000, '송아')
-
-
-#전체 통계
-car_count = 0
-coupon_count = 0
-fail_count = 0
-
-for block in block_chain:
-    if block.data == "자동차":
-        car_count += 1
-    elif block.data == "쿠폰":
-        coupon_count += 1
-    else:
-        fail_count+=1
-
-pCar = car_count/len(block_chain)
-pCoupon = coupon_count/len(block_chain)
-pFail = fail_count/len(block_chain)
-
-#개인배열 생성
-n1 =[] #승환
-n2 =[] #성산
-n3 =[] #주호
-n4 =[] #송아
-
-#개인 시행횟수
-name1 = 0
-name2 = 0
-name3 = 0
-name4 = 0
-
-#블록에 이름으로 분배
-for block in block_chain:
-    if block.name == '승환':
-        name1 += 1
-        n1.append(block)
-    elif block.name == '성산':
-        name2 += 1
-        n2.append(block)
-    elif block.name == '주호':
-        name3 += 1
-        n3.append(block)
-    else:
-        name4 += 1
-        n4.append(block)
-print('승환',name1,'성산',name2,'주호',name3,'송아',name4)
-'''
-
-''' CarPrb = Label(sWin, text='자동차:' + "{:.2f}".format(pCar * 100) + '%',font=('SD산돌고딕', 30))'''
-
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-# ==================================================================================================================== #
-
-# UI만들기
 from tkinter import *
-from tkinter.ttk import Combobox, Treeview
+from tkinter.ttk import Combobox,Treeview
+
+from block import *
 
 win = Tk()
 win.option_add("*Font", "Arial 20")
@@ -203,15 +24,7 @@ def flex():
     return money
 
 
-'''
-global count
-count = 0
 
-def count():
-    global count
-    count += 1
-    return count
-'''
 global xx
 xx = 200
 box_x = 100
@@ -488,31 +301,13 @@ search_page_button.config(command=search_window)
 # 돈
 m_label = Label(win, text=m_text + str(money))
 m_label.config(width=15, height=1)
-# m_label.place(x=350, y=400)
 m_label.place_forget()
 
 # 박스 연 시간을 띄우는 창
 t_text = 'time: '
 t_label = Label(win, text=t_text)
 t_label.config(width=15, height=1)
-# t_label.place(x=200, y=120)
 t_label.place_forget()
-
-# btn.place(relx = 0.4 , rely = 0.9)#상대좌표
-
-# 블록체인 만들도록 명령하기
 
 
 win.mainloop()
-
-# ==================================================================================================================== #
-
-
-# 블록 생성 + 작업증명(POW)
-# block_chain.append(next_block(block_chain[len(block_chain) - 1], "안녕하세요"))
-# block_chain.append(next_block(block_chain[len(block_chain) - 1], "테스트"))
-# block_chain.append(next_block(block_chain[len(block_chain) - 1], "삘릴릴릴리 !!!"))
-
-# 블록체인의 블록 정보 출력
-# for block in block_chain:
-#     print("블록해시: {}\n시간: {}\nNonce: {}\n블록 데이터: {}\n\n".format(block.hash, block.time, block.nonce, block.data))
